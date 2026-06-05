@@ -43,13 +43,16 @@ async def run_agent(message: str) -> str:
         parts=[genai_types.Part(text=message)],
     )
     async for event in runner.run_async(
-        user_id="gitlab_webhook",
-        session_id=session.id,
-        new_message=content,
-    ):
-        if event.is_final_response():
-            return event.response.text
-    return "Agent completed"
+            user_id="gitlab_webhook",
+            session_id=session.id,
+            new_message=content,
+        ):
+            if event.is_final_response():
+                logger.info("Agent run finalized execution loop.")
+                # Safe extraction of text from the ADK event structure
+                if event.content and event.content.parts:
+                    return event.content.parts[0].text
+                return "Agent completed, but no text was returned."
 
 
 async def process_mr_event(message: str) -> None:
