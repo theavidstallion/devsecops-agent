@@ -122,14 +122,12 @@ RULES:
 """
 
 
-def create_agent() -> Agent:
+def create_agent():
     gitlab_toolset = McpToolset(
         connection_params=StdioConnectionParams(
             server_params=StdioServerParameters(
-                command="npx",
+                command="mcp-remote",
                 args=[
-                    "-y",
-                    "mcp-remote",
                     f"https://{GITLAB_INSTANCE_URL}/api/v4/mcp",
                     "--header",
                     f"Authorization: Bearer {GITLAB_PAT}",
@@ -138,13 +136,13 @@ def create_agent() -> Agent:
             timeout=60,
         ),
     )
-
+    
     agent = Agent(
-        model="gemini-2.5-flash-preview-05-20",
+        model="gemini-3.1-flash-lite-preview",  # <--- Updated model
         name="devsecops_autopilot",
         description="Business logic vulnerability detection agent for GitLab MRs",
         instruction=SYSTEM_PROMPT,
         tools=[gitlab_toolset],
     )
-
+    
     return agent
