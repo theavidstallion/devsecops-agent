@@ -25,7 +25,7 @@ steps:
       - --platform=managed
       - --allow-unauthenticated
       - --set-secrets=GITLAB_PAT=GITLAB_PAT:latest,GITLAB_WEBHOOK_SECRET=GITLAB_WEBHOOK_SECRET:latest
-      - --set-env-vars=PORT=8080
+      #- --set-env-vars=PORT=8080
 
 images:
   - "gcr.io/$PROJECT_ID/devsecops-autopilot:$COMMIT_SHA"
