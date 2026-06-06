@@ -1,5 +1,4 @@
 google-adk>=1.0.0
-mcp>=1.0.0
 fastapi
 uvicorn[standard]
 python-dotenv
