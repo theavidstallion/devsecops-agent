@@ -38,8 +38,14 @@ GITLAB_PAT = os.getenv("GITLAB_PAT", "")
 # ---------------------------------------------------------------------------
 
 def _headers() -> dict:
+    # Read dynamically on every call — avoids any import-time capture issues
+    # where the module-level GITLAB_PAT was evaluated before Cloud Run injected
+    # the secret into the environment.
+    pat = os.getenv("GITLAB_PAT", "")
+    if not pat:
+        logger.warning("GITLAB_PAT is empty — GitLab API calls will return 401")
     return {
-        "PRIVATE-TOKEN": GITLAB_PAT,
+        "PRIVATE-TOKEN": pat,
         "Content-Type": "application/json",
     }
 
