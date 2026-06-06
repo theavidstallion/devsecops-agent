@@ -83,7 +83,7 @@ async def gitlab_webhook(
     attrs = body.get("object_attributes", {})
     action = attrs.get("action", "")
 
-    if action not in {"open", "update", "reopen"}:
+    if action != "open":
         return {"status": "skipped", "action": action}
 
     mr_iid = attrs.get("iid")
