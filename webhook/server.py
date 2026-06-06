@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timezone
 
 from dotenv import load_dotenv
-from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request
+from fastapi import FastAPI, Header, HTTPException, Request
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types as genai_types
@@ -67,7 +67,6 @@ async def process_mr_event(message: str) -> None:
 @app.post("/webhook")
 async def gitlab_webhook(
     request: Request,
-    background_tasks: BackgroundTasks,
     x_gitlab_token: str = Header(default=""),
 ):
     # Validate secret
@@ -104,7 +103,11 @@ async def gitlab_webhook(
     )
 
     logger.info("Queuing agent run for MR !%s in project %s", mr_iid, project_id)
-    background_tasks.add_task(process_mr_event, message)
+    # Use asyncio.create_task instead of FastAPI BackgroundTasks.
+    # BackgroundTasks runs the coroutine in the same request context, which
+    # causes ADK's OpenTelemetry spans to fail cleanup with a ContextVar
+    # mismatch. create_task gives the coroutine its own independent context.
+    asyncio.create_task(process_mr_event(message))
 
     return {"status": "processed"}
 
